@@ -5,8 +5,8 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 import 'login.dart';
 import '../../items/view/home_page.dart';
 
-import '../repository/auth_repository.dart';
 import '../view_model/auth_view_model.dart';
+import 'package:ecommerce/di.dart';
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
@@ -19,7 +19,7 @@ class _SplashScreenState extends State<SplashScreen> with SingleTickerProviderSt
   late AnimationController _controller;
   late Animation<double> _animation;
 
-  late final AuthViewModel _authVM = AuthViewModel(AuthRepository());
+  late final AuthViewModel _authVM = sl.get<AuthViewModel>();
 
   @override
   void initState() {

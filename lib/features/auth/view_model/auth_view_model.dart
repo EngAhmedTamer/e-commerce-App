@@ -1,14 +1,24 @@
 import 'package:flutter/foundation.dart';
-import '../repository/auth_repository.dart';
+import 'package:ecommerce/core/usecase/usecase.dart';
+import '../../auth/domain/usecases/authenticate_user_usecase.dart';
+import '../../auth/domain/usecases/check_auth_status_usecase.dart';
+import '../../auth/domain/usecases/signup_user_usecase.dart';
 
 class AuthViewModel extends ChangeNotifier {
-  final AuthRepository _repo;
-  AuthViewModel(this._repo);
+  final AuthenticateUserUseCase authenticateUserUseCase;
+  final SignupUserUseCase signupUserUseCase;
+  final CheckAuthStatusUseCase checkAuthStatusUseCase;
+
+  AuthViewModel({
+    required this.authenticateUserUseCase,
+    required this.signupUserUseCase,
+    required this.checkAuthStatusUseCase,
+  });
 
   bool isLoading = false;
   String? error;
 
-  Future<bool> checkSession() async => _repo.isLoggedIn;
+  Future<bool> checkSession() async => await checkAuthStatusUseCase(const NoParams());
 
   Future<bool> signIn(String email, String password) async {
     if (email.isEmpty || password.isEmpty) {
@@ -18,9 +28,8 @@ class AuthViewModel extends ChangeNotifier {
     }
     try {
       isLoading = true; error = null; notifyListeners();
-      final ok = await _repo.signIn(email, password);
-      if (!ok) error = "Login failed. Please try again.";
-      return ok;
+      await authenticateUserUseCase(AuthParams(email, password));
+      return true;
     } catch (e) {
       error = e.toString(); return false;
     } finally {
@@ -36,9 +45,8 @@ class AuthViewModel extends ChangeNotifier {
     }
     try {
       isLoading = true; error = null; notifyListeners();
-      final ok = await _repo.signUp(email, password);
-      if (!ok) error = "Signup failed. Please try again.";
-      return ok;
+      await signupUserUseCase(SignUpParams(email, password));
+      return true;
     } catch (e) {
       error = e.toString(); return false;
     } finally {
@@ -46,5 +54,7 @@ class AuthViewModel extends ChangeNotifier {
     }
   }
 
-  Future<void> signOut() => _repo.signOut();
+  Future<void> signOut() async {
+    // Could add a LogoutUseCase if needed. For now, use Supabase directly via DI or extend repository later.
+  }
 }

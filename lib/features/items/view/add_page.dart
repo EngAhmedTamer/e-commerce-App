@@ -2,10 +2,9 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
-import 'package:mime/mime.dart';
 
 import '../view_model/items_view_model.dart';
-import '../repository/items_repository.dart';
+import 'package:ecommerce/di.dart';
 
 class AddItemPage extends StatefulWidget {
   const AddItemPage({super.key});
@@ -24,7 +23,7 @@ class _AddItemPageState extends State<AddItemPage> {
   File? _imageFile;
   bool _isUploading = false;
 
-  late final ItemsViewModel _itemsVM = ItemsViewModel(ItemsRepository());
+  late final ItemsViewModel _itemsVM = sl.get<ItemsViewModel>();
 
   Future<void> _pickImage() async {
     final picked = await ImagePicker().pickImage(source: ImageSource.gallery);

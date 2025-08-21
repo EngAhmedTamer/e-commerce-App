@@ -1,20 +1,36 @@
 import 'dart:io';
 import 'package:flutter/foundation.dart';
-import '../model/product.dart';
-import '../repository/items_repository.dart';
+import 'package:ecommerce/core/usecase/usecase.dart';
+import '../../items/domain/entities/product_entity.dart';
+import '../../items/domain/usecases/create_product_usecase.dart';
+import '../../items/domain/usecases/delete_product_usecase.dart';
+import '../../items/domain/usecases/get_products_usecase.dart';
+import '../../items/domain/usecases/update_product_usecase.dart';
+import '../../items/domain/usecases/upload_image_usecase.dart';
 
 class ItemsViewModel extends ChangeNotifier {
-  final ItemsRepository _repo;
-  ItemsViewModel(this._repo);
+  final GetProductsUseCase getProductsUseCase;
+  final CreateProductUseCase createProductUseCase;
+  final UpdateProductUseCase updateProductUseCase;
+  final DeleteProductUseCase deleteProductUseCase;
+  final UploadImageUseCase uploadImageUseCase;
+
+  ItemsViewModel({
+    required this.getProductsUseCase,
+    required this.createProductUseCase,
+    required this.updateProductUseCase,
+    required this.deleteProductUseCase,
+    required this.uploadImageUseCase,
+  });
 
   bool loading = false;
   String? error;
-  List<Product> items = [];
+  List<ProductEntity> items = [];
 
   Future<void> fetchProducts() async {
     try {
       loading = true; error = null; notifyListeners();
-      items = await _repo.fetchProducts();
+      items = await getProductsUseCase(const NoParams());
     } catch (e) {
       error = e.toString();
     } finally {
@@ -32,11 +48,15 @@ class ItemsViewModel extends ChangeNotifier {
       loading = true; error = null; notifyListeners();
       String url = '';
       if (imageFile != null) {
-        final uploaded = await _repo.uploadImage(imageFile);
+        final uploaded = await uploadImageUseCase(UploadImageParams(imageFile));
         if (uploaded == null) throw Exception('Image upload failed');
         url = uploaded;
       }
-      final ok = await _repo.createItem(Product(name: name, description: description, price: price, url: url));
+      final ok = await createProductUseCase(
+        CreateProductParams(
+          ProductEntity(name: name, description: description, price: price, url: url),
+        ),
+      );
       if (ok) await fetchProducts();
       return ok;
     } catch (e) {
@@ -55,9 +75,11 @@ class ItemsViewModel extends ChangeNotifier {
   }) async {
     try {
       loading = true; error = null; notifyListeners();
-      final ok = await _repo.updateItem(
-        oldName: oldName,
-        newValue: Product(name: name, description: description, price: price, url: imageUrl),
+      final ok = await updateProductUseCase(
+        UpdateProductParams(
+          oldName: oldName,
+          newValue: ProductEntity(name: name, description: description, price: price, url: imageUrl),
+        ),
       );
       if (ok) await fetchProducts();
       return ok;
@@ -70,7 +92,7 @@ class ItemsViewModel extends ChangeNotifier {
 
   Future<void> deleteByName(String name) async {
     try {
-      await _repo.deleteByName(name);
+      await deleteProductUseCase(DeleteProductParams(name));
       await fetchProducts();
     } catch (e) {
       error = e.toString();

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../view_model/items_view_model.dart';
-import '../repository/items_repository.dart';
+import 'package:ecommerce/di.dart';
 
 class EditItemPage extends StatefulWidget {
   final String oldName;
@@ -27,7 +27,7 @@ class _EditItemPageState extends State<EditItemPage> {
   late TextEditingController priceController;
   late TextEditingController imageUrlController;
 
-  late final ItemsViewModel _itemsVM = ItemsViewModel(ItemsRepository());
+  late final ItemsViewModel _itemsVM = sl.get<ItemsViewModel>();
 
   @override
   void initState() {

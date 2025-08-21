@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import '../../items/view/home_page.dart';
 
-import '../repository/auth_repository.dart';
 import '../view_model/auth_view_model.dart';
+import 'package:ecommerce/di.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -15,7 +15,7 @@ class _LoginPageState extends State<LoginPage> {
   final emailController = TextEditingController();
   final passwordController = TextEditingController();
 
-  late final AuthViewModel _authVM = AuthViewModel(AuthRepository());
+  late final AuthViewModel _authVM = sl.get<AuthViewModel>();
 
   Future<void> signInWithEmail() async {
     final ok = await _authVM.signIn(

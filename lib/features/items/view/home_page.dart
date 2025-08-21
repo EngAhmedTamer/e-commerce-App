@@ -5,8 +5,8 @@ import 'edit_item_page.dart';
 import '../../auth/view/login.dart';
 
 import '../view_model/items_view_model.dart';
-import '../repository/items_repository.dart';
-import '../model/product.dart';
+import '../../items/domain/entities/product_entity.dart';
+import 'package:ecommerce/di.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -16,10 +16,10 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-  List<Product> products = [];
+  List<ProductEntity> products = [];
   bool isLoading = true;
 
-  late final ItemsViewModel _itemsVM = ItemsViewModel(ItemsRepository());
+  late final ItemsViewModel _itemsVM = sl.get<ItemsViewModel>();
 
   @override
   void initState() {
